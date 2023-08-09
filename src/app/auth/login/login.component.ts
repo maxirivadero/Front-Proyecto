@@ -1,6 +1,8 @@
 import { Component, OnInit} from '@angular/core';
 import { Router } from '@angular/router';
 import { FormBuilder, Validators } from '@angular/forms';
+import { LoginService } from 'src/app/services/auth/login.service';
+import { LoginRequest } from 'src/app/services/auth/loginRequest';
 
 @Component({
   selector: 'app-login',
@@ -8,32 +10,45 @@ import { FormBuilder, Validators } from '@angular/forms';
   styleUrls: ['./login.component.css']
 })
 export class LoginComponent implements OnInit {
-  username: string = "";
-  password: string = "";
-  //isAuthenticated: boolean = false;
 
+  userLoginOn: boolean = false;
+  
   loginForm=this.formBuilder.group({
     username: ['',[Validators.required]],
     password: ['', Validators.required],
   })
 
-  constructor(private formBuilder: FormBuilder,private router: Router) { }
+  constructor(private formBuilder: FormBuilder,private router: Router, private loginService:LoginService) { }
 
   ngOnInit(): void {
     
   }
-  onSubmit() {
-    if (this.loginForm.valid) {
-      const username = this.loginForm.value.username;
-      const password = this.loginForm.value.password;
-      if (username === 'usuario' && password === 'contraseña') {
+  get username() {
+    return this.loginForm.controls.username;
+  }
 
-        console.log("siiiii")
-        this.router.navigateByUrl('/dashboard');
-        this.loginForm.reset();
-      }
+  get password() {
+    return this.loginForm.controls.password;
+  }
+
+
+  login() {
+    if (this.loginForm.valid) {
+      this.loginService.login(this.loginForm.value as LoginRequest).subscribe({
+        next: (userData) => {
+          console.log(userData);
+        },
+        error: (errorData) => {
+          console.error(errorData);
+        },
+        complete: () => {
+          console.info("Login completo");
+          this.router.navigateByUrl('/dashboard');
+          this.loginForm.reset();
+        }
+      });
     } else {
-      alert("Error al ingresar los datos");
+      this.loginForm.markAllAsTouched();
     }
   }
 }

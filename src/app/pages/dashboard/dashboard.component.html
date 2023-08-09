@@ -1,1 +1,5 @@
-<p>¡Este es el Dashboard!</p>
+<p *ngIf="!userLoginOn">Usuario NO autenticado</p>
+<p *ngIf="userLoginOn">¡Este es el Dashboard!</p>
+<div *ngIf="userLoginOn">  
+    <p>Nombre: {{userData?.username}}</p>
+</div>
